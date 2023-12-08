@@ -1,19 +1,20 @@
-function [Im_sub,Imt,Imp]=Facu_preprocessing(Im,th,part_radius,gain,bkg,thr_removepart)
+function [Im_sub,Imt,Imp]=Facu_preprocessing(Im,th,part_radius,gain,bkg,cam)
 
-% 03/2019 - Thomas Basset
 %Im = imcomplement(Im);
 
 
 %se=strel('disk',strel_size); %opening to remove big elements
 %imo=imopen(Im,se);
-Im=imsubtract(bkg,Im);
-Im_sub = Im;
+Im_sub=imsubtract(bkg,Im);
+%Im_sub = Im;
 %Im = bpass2(Im,lnoise,part_size);
 %Im = imgaussfilt(Im,part_radius);
 %Im=imnlmfilt(Im);
 
 % Th = th*mean(mean(Im));
-Im(Im<th)=0; %thresholding to remove the background
+Im_sub(Im_sub<th)=0; %thresholding to remove the background
+%Im(Im<th)=0; %thresholding to remove the background
+%Im_sub=Im;
 %Im=medfilt2(Im,[3,3]);
 %Im = imadjust(Im,stretchlim(Im),[]);
 
@@ -26,11 +27,14 @@ Im(Im<th)=0; %thresholding to remove the background
 %Imbw=imregionalmax(Im,6);
 %Im = Im/mean(Im(Imbw))*gain;
 
-tt = class(Im);
-%Im = cast(double(Im)/max(max(double(Im)))*gain,tt);
-Im = cast(double(Im)*gain,tt);
+if cam(4)=='1'
+    Im(Im<th)=0;
+    Im_sub=Im;
+end
 
-%
-%[Imt,Imp]= remove_part_mica(Im,part_radius,thr_removepart);
-[Imt,Imp]= remove_part(Im,part_radius);
+tt = class(Im_sub);
+%Im = cast(double(Im)/max(max(double(Im)))*gain,tt);
+Im_sub = cast(double(Im_sub)*gain,tt);
+
+[Imt,Imp]= remove_part(Im_sub,part_radius);
 
